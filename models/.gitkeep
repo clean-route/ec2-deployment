@@ -1,0 +1,1 @@
+This directory contains serialized models (pickle) files, but due to large size (around 5 GB), they are not tracked using version control.
