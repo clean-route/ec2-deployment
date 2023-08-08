@@ -21,11 +21,22 @@ class ScoringItem(BaseModel):
     FWD: float
     delayCode: int
     
+    
+# loading all the models when the server started: for quick responses
+with open('./models/60min.pkl', 'rb') as f:
+    model60 = pickle.load(f)
+with open('./models/120min.pkl', 'rb') as f:
+    model120 = pickle.load(f)
+with open('./models/180min.pkl', 'rb') as f:
+    model180 = pickle.load(f)
+with open('./models/240min.pkl', 'rb') as f:
+    model240 = pickle.load(f)
+with open('./models/300min.pkl', 'rb') as f:
+    model300 = pickle.load(f)
+# with open('./models/360min.pkl', 'rb') as f:
+#     model360 = pickle.load(f)
 
-@app.post('/')
-async def scoring_endpoint(item: List[ScoringItem]):
-    print(item)
-    min_max = {
+min_max = {
         "ITEMP":(0.05, 44.97),
         "IRH": (0.2, 100),
         "IWS":(0.01, 46.91),
@@ -35,7 +46,11 @@ async def scoring_endpoint(item: List[ScoringItem]):
         "FRH": (0.2, 100),
         "FWS": (0.01, 47.71),
         "FWD":(0.01, 360),
-    }
+}
+
+@app.post('/')
+async def scoring_endpoint(item: List[ScoringItem]):
+    print(item)
     
     # normalizing the parameters
     for i in range(len(item)):
@@ -54,33 +69,39 @@ async def scoring_endpoint(item: List[ScoringItem]):
     print("Delay Code: ", item[0].delayCode)       # every input feature has the same delayCode that's why!
     
     if item[0].delayCode == 1:
-        with open('./models/60min.pkl', 'rb') as f:
-            print("Taking the 60min model")
-            model = pickle.load(f)
+        # with open('./models/60min.pkl', 'rb') as f:
+        #     print("Taking the 60min model")
+        #     model = pickle.load(f)
+        model = model60
     elif item[0].delayCode == 2:
-        with open('./models/120min.pkl', 'rb') as f:
-            print("Taking the 120min model")
-            model = pickle.load(f)
+        # with open('./models/120min.pkl', 'rb') as f:
+        #     print("Taking the 120min model")
+        #     model = pickle.load(f)
+        model = model120
     elif item[0].delayCode == 3:
-        with open('./models/180min.pkl', 'rb') as f:
-            print("Taking the 180min model")
-            model = pickle.load(f)
+        # with open('./models/180min.pkl', 'rb') as f:
+        #     print("Taking the 180min model")
+        #     model = pickle.load(f)
+        model = model180
     elif item[0].delayCode == 4:
-        with open('./models/240min.pkl', 'rb') as f:
-            print("Taking the 240min model")
-            model = pickle.load(f)
+        # with open('./models/240min.pkl', 'rb') as f:
+        #     print("Taking the 240min model")
+        #     model = pickle.load(f)
+        model = model240
     elif item[0].delayCode == 5:
-        with open('./models/300min.pkl', 'rb') as f:
-            print("Taking the 300min model")
-            model = pickle.load(f)
-    elif item[0].delayCode == 6:
-        with open('./models/360min.pkl', 'rb') as f:
-            print("Taking the 360min model")
-            model = pickle.load(f)
+        # with open('./models/300min.pkl', 'rb') as f:
+        #     print("Taking the 300min model")
+        #     model = pickle.load(f)
+        model = model300
+    # elif item[0].delayCode == 6:
+    #     # with open('./models/360min.pkl', 'rb') as f:
+    #     #     print("Taking the 360min model")
+    #     #     model = pickle.load(f)
+    #     model = model360
     else:
-        jsonData = json.dumps({
-            "fpm_vec": [item[i].IPM for i in range(len(item))]
-        })
+        jsonData = {
+            "fpm_vec": [(item[i].IPM * (min_max['IPM'][1] - min_max['IPM'][0]) + min_max['IPM'][0]) for i in range(len(item))]
+        }
         return jsonData # returning the initial concentration as the final concentration.
         
      
