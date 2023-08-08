@@ -17,12 +17,11 @@ class ScoringItem(BaseModel):
     FRH: float
     FWS: float
     FWD: float
+    delayCode: int
     
 
 @app.post('/')
 async def scoring_endpoint(item: ScoringItem):
-    with open('./models/dtu-300min-1723_july_predict.pkl', 'rb') as f:
-        model = pickle.load(f)
     print(item)
     min_max = {
         "ITEMP":(0.05, 44.97),
@@ -36,6 +35,7 @@ async def scoring_endpoint(item: ScoringItem):
         "FWD":(0.01, 360),
     }
     
+    # normalizing the parameters
     item.ITEMP = (item.ITEMP - min_max["ITEMP"][0]) / (min_max["ITEMP"][1] - min_max["ITEMP"][0])
     item.IRH = (item.IRH - min_max["IRH"][0]) / (min_max["IRH"][1] - min_max["IRH"][0])
     item.IWS = (item.IWS - min_max["IWS"][0]) / (min_max["IWS"][1] - min_max["IWS"][0])
@@ -45,12 +45,50 @@ async def scoring_endpoint(item: ScoringItem):
     item.FRH = (item.FRH - min_max["FRH"][0]) / (min_max["FRH"][1] - min_max["FRH"][0])
     item.FWS = (item.FWS - min_max["FWS"][0]) / (min_max["FWS"][1] - min_max["FWS"][0])
     item.FWD = (item.FWD - min_max["FWD"][0]) / (min_max["FWD"][1] - min_max["FWD"][0])
-        
-    df = pd.DataFrame([item.model_dump().values()], columns=item.model_dump().keys())
     
+    
+    # loading the relevant model
+    print("Delay Code: ", item.delayCode)
+    print("DelayCode Type: ", type(item.delayCode))
+    if item.delayCode == 1:
+        with open('./models/60min.pkl', 'rb') as f:
+            print("Taking the 60min model")
+            model = pickle.load(f)
+    elif item.delayCode == 2:
+        with open('./models/120min.pkl', 'rb') as f:
+            print("Taking the 120min model")
+            model = pickle.load(f)
+    elif item.delayCode == 3:
+        with open('./models/180min.pkl', 'rb') as f:
+            print("Taking the 180min model")
+            model = pickle.load(f)
+    elif item.delayCode == 4:
+        with open('./models/240min.pkl', 'rb') as f:
+            print("Taking the 240min model")
+            model = pickle.load(f)
+    elif item.delayCode == 5:
+        with open('./models/300min.pkl', 'rb') as f:
+            print("Taking the 300min model")
+            model = pickle.load(f)
+    elif item.delayCode == 6:
+        with open('./models/360min.pkl', 'rb') as f:
+            print("Taking the 360min model")
+            model = pickle.load(f)
+    else:
+        return {"fpm": item.IPM} # returning the initial concentration as the final concentration.
+        
+     
+    # removing the unnecessary column (delayCode)   
+    df = pd.DataFrame([item.model_dump().values()], columns=item.model_dump().keys())
     print(df)
+    df = df.drop("delayCode", axis=1)
+    print(df)
+    
+    # prediction
     yhat = model.predict(df)[0]
     print("Prediction: {}".format(yhat))
-    return {"prediction": yhat}
+    
+    # returning the result
+    return {"fpm": yhat}
 
 
