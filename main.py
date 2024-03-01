@@ -23,14 +23,14 @@ class ScoringItem(BaseModel):
     
     
 # loading all the models when the server started: for quick responses
-with open('./models/60min.pkl', 'rb') as f:
-    model60 = pickle.load(f)
+# with open('./models/60min.pkl', 'rb') as f:
+#     model60 = pickle.load(f)
 with open('./models/120min.pkl', 'rb') as f:
     model120 = pickle.load(f)
-with open('./models/180min.pkl', 'rb') as f:
-    model180 = pickle.load(f)
-with open('./models/240min.pkl', 'rb') as f:
-    model240 = pickle.load(f)
+# with open('./models/180min.pkl', 'rb') as f:
+#     model180 = pickle.load(f)
+# with open('./models/240min.pkl', 'rb') as f:
+#     model240 = pickle.load(f)
 with open('./models/300min.pkl', 'rb') as f:
     model300 = pickle.load(f)
 # with open('./models/360min.pkl', 'rb') as f:
@@ -72,7 +72,7 @@ async def scoring_endpoint(item: List[ScoringItem]):
         # with open('./models/60min.pkl', 'rb') as f:
         #     print("Taking the 60min model")
         #     model = pickle.load(f)
-        model = model60
+        model = model120
     elif item[0].delayCode == 2:
         # with open('./models/120min.pkl', 'rb') as f:
         #     print("Taking the 120min model")
@@ -82,22 +82,22 @@ async def scoring_endpoint(item: List[ScoringItem]):
         # with open('./models/180min.pkl', 'rb') as f:
         #     print("Taking the 180min model")
         #     model = pickle.load(f)
-        model = model180
+        model = model120
     elif item[0].delayCode == 4:
         # with open('./models/240min.pkl', 'rb') as f:
         #     print("Taking the 240min model")
         #     model = pickle.load(f)
-        model = model240
+        model = model300
     elif item[0].delayCode == 5:
         # with open('./models/300min.pkl', 'rb') as f:
         #     print("Taking the 300min model")
         #     model = pickle.load(f)
         model = model300
-    # elif item[0].delayCode == 6:
-    #     # with open('./models/360min.pkl', 'rb') as f:
-    #     #     print("Taking the 360min model")
-    #     #     model = pickle.load(f)
-    #     model = model360
+    elif item[0].delayCode == 6:
+        # with open('./models/360min.pkl', 'rb') as f:
+        #     print("Taking the 360min model")
+        #     model = pickle.load(f)
+        model = model300
     else:
         jsonData = {
             "fpm_vec": [(item[i].IPM * (min_max['IPM'][1] - min_max['IPM'][0]) + min_max['IPM'][0]) for i in range(len(item))]
