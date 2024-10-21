@@ -1,7 +1,8 @@
 # CleanRoute: Web Tool for LEAP & LCO2 routes
 This is a web tool for finding out least air pollution and least carbon dioxide emission path. It also features forecasting capability. 
 
->> Please use Linux Terminal/GITBASH for as Terminal for typing your commands. 
+>> Please use bash/zsh shell for typing commands.
+>> Windows users please use GitBash for this purpose.
 
 ### IMPORTANT
 Before you begin with frontend setup: Make sure you've completed the backend setup and the server is up and running.
